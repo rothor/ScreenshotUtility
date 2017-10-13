@@ -1,41 +1,47 @@
 #pragma once
+#include "GraphicsInterface\GraphicsInterface.h"
+#include "BasicWindowMaker\BasicWindowMaker.h"
 
 
 class MyPrintScreen
 {
 public:
-	MyPrintScreen() {}
-	int get_width() { return rectCaptureRight - rectCaptureLeft; }
-	int get_height() { return rectCaptureBottom - rectCaptureTop; }
+	MyPrintScreen();
 
+	// Fields
 private:
-	HWND hWnd;
-	int rectCaptureLeft{ 100 };
-	int rectCaptureTop{ 200 };
-	int rectCaptureRight{ 900 };
-	int rectCaptureBottom{ 400 };
-	bool lrClickFocus{ false };
+	GraphicsInterface* gi1;
+	GraphicsInterface* gi2;
+	BasicWindowMaker bwm1;
+	BasicWindowMaker bwm2;
+	int rectCaptureLeft;
+	int rectCaptureTop;
+	int rectCaptureRight;
+	int rectCaptureBottom;
+	bool lrClickFocus;
 
-	void set_rcl_offset_smart(int xP) { if (rectCaptureLeft + xP < rectCaptureRight) rectCaptureLeft += xP; }
-	void set_rcr_offset_smart(int xP) { if (rectCaptureRight + xP > rectCaptureLeft) rectCaptureRight += xP; }
-	void set_rct_offset_smart(int yP) { if (rectCaptureTop + yP < rectCaptureBottom) rectCaptureTop += yP; }
-	void set_rcb_offset_smart(int yP) { if (rectCaptureBottom + yP > rectCaptureTop) rectCaptureBottom += yP; }
-
-	void save_square_on_screen_as_file(LPCTSTR fileExtension);
-	void capture_image_and_save(LPCWSTR fileExtension, LPCWSTR mbMessage);
-
+	// Public methods
 public:
-	void set_hwnd(HWND hWndP);
-	void redraw_window();
-	void repaint_scene();
-	void left_click(int xP, int yP);
-	void right_click(int xP, int yP);
+	void size_change();
+	void left_click(int, int);
+	void right_click(int, int);
 	void up_arrow();
 	void down_arrow();
 	void left_arrow();
 	void right_arrow();
+	void draw_window();
 	void pressed_g();
 	void pressed_j();
 	void pressed_p();
 	void pressed_b();
+
+	// Private methods
+private:
+	void set_rcl_offset_smart(int);
+	void set_rcr_offset_smart(int);
+	void set_rct_offset_smart(int);
+	void set_rcb_offset_smart(int);
+	int get_width();
+	int get_height();
+	void screenshot_region_and_save(LPCWSTR, LPCWSTR);
 };

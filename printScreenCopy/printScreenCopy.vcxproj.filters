@@ -33,6 +33,15 @@
     <ClInclude Include="PrintScreen.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="BasicWindowMaker\BasicWindowMaker.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphicsInterface\GraphicsInterface.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GlobalVars.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -42,6 +51,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="PrintScreen.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BasicWindowMaker\BasicWindowMaker.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphicsInterface\GraphicsInterface.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

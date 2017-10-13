@@ -146,6 +146,9 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BasicWindowMaker\BasicWindowMaker.h" />
+    <ClInclude Include="GlobalVars.h" />
+    <ClInclude Include="GraphicsInterface\GraphicsInterface.h" />
     <ClInclude Include="PrintScreen.h" />
     <ClInclude Include="printScreenCopy.h" />
     <ClInclude Include="Resource.h" />
@@ -153,6 +156,8 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="BasicWindowMaker\BasicWindowMaker.cpp" />
+    <ClCompile Include="GraphicsInterface\GraphicsInterface.cpp" />
     <ClCompile Include="PrintScreen.cpp" />
     <ClCompile Include="printScreenCopy.cpp" />
     <ClCompile Include="stdafx.cpp">
