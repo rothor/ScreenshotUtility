@@ -20,12 +20,14 @@ extern MyPrintScreen* printScreen;
 
 MyPrintScreen::MyPrintScreen()
 {
+	maskA = 0x90;
+
 	// Create window 1 (background window)
 	int exWindowStyles = WS_EX_LAYERED;
 	int windowStyles = WS_POPUP;
-	int classStyles = CS_HREDRAW | CS_VREDRAW;
+	int classStyles = 0;
 	bwm1.create_window(L"Screenshot Tool", L"screenshotToolClass",
-		0, 0, GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN) + 0,
+		0, 0, GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN) + 1,
 		WndProc, hInst, SW_SHOW, exWindowStyles, windowStyles, classStyles,
 		0, IDI_PRINTSCREENCOPY, IDI_SMALL);
 	gi1 = new GraphicsInterface(bwm1.get_hwnd());
@@ -34,13 +36,13 @@ MyPrintScreen::MyPrintScreen()
 	// Create window 2 (foreground)
 	exWindowStyles = WS_EX_LAYERED | WS_EX_TRANSPARENT;
 	windowStyles = WS_POPUP;
-	classStyles = CS_HREDRAW | CS_VREDRAW;
+	classStyles = 0;
 	bwm2.create_window(L"Screenshot Tool extra", L"screenshotToolClass",
-		0, 0, GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN) - 0,
+		0, 0, GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN) + 1,
 		WndProc, hInst, SW_SHOW, exWindowStyles, windowStyles, classStyles,
-		0, IDI_PRINTSCREENCOPY, IDI_SMALL, bwm1.get_hwnd());
+		0, IDI_PRINTSCREENCOPY, IDI_SMALL, bwm1.get_hwnd()); // the last argument makes window 2 a child of window 1
 	gi2 = new GraphicsInterface(bwm2.get_hwnd());
-	SetLayeredWindowAttributes(bwm2.get_hwnd(), RGB(1, 1, 1), 0x90, LWA_ALPHA | LWA_COLORKEY);
+	SetLayeredWindowAttributes(bwm2.get_hwnd(), RGB(1, 1, 1), maskA, LWA_ALPHA | LWA_COLORKEY);
 	
 	// Initialize fields
 	lrClickFocus = false;
@@ -50,6 +52,9 @@ MyPrintScreen::MyPrintScreen()
 	rectCaptureRight = rectClient.right / 2 + 150;
 	rectCaptureTop = rectClient.bottom / 2 - 150;
 	rectCaptureBottom = rectClient.bottom / 2 + 150;
+	maskR = 0;
+	maskG = 0;
+	maskB = 0;
 	
 	draw_window();
 }
@@ -80,15 +85,61 @@ void MyPrintScreen::left_click(int xP, int yP)
 void MyPrintScreen::right_click(int xP, int yP)
 {
 	lrClickFocus = true;
-	rectCaptureRight = xP + 1;
+	rectCaptureRight = xP;
 	if (xP <= rectCaptureLeft)
 		rectCaptureLeft = xP - 50;
 
-	rectCaptureBottom = yP + 1;
+	rectCaptureBottom = yP;
 	if (yP <= rectCaptureTop)
 		rectCaptureTop = yP - 50;
 
 	draw_window();
+}
+
+void MyPrintScreen::middle_click()
+{
+	static int colorMode = 0;
+	colorMode++;
+	if (colorMode > 3)
+		colorMode = 0;
+
+	if (colorMode == 0)
+	{
+		maskR = 0;
+		maskG = 0;
+		maskB = 0;
+	}
+	else if (colorMode == 1)
+	{
+		maskR = 0xFF;
+		maskG = 0xFF;
+		maskB = 0xFF;
+	}
+	else if (colorMode == 2)
+	{
+		maskR = 0x00;
+		maskG = 0xE0;
+		maskB = 0xF0;
+	}
+	else if (colorMode == 3)
+	{
+		maskR = 0xFF;
+		maskG = 0x00;
+		maskB = 0x00;
+	}
+
+	draw_window();
+}
+
+void MyPrintScreen::mouse_wheel(int amount)
+{
+	maskA += amount * 0x10;
+	if (maskA > 0xFF)
+		maskA = 0xFF;
+	else if (maskA < 0)
+		maskA = 0;
+
+	SetLayeredWindowAttributes(bwm2.get_hwnd(), RGB(1, 1, 1), maskA, LWA_ALPHA | LWA_COLORKEY);
 }
 
 void MyPrintScreen::up_arrow()
@@ -141,7 +192,7 @@ void MyPrintScreen::draw_window()
 
 	// Draw window 2
 	GetClientRect(bwm2.get_hwnd(), &rectClient);
-	gi2->draw_rect(0, 0, rectClient.right, rectClient.bottom, 0, 0, 0);
+	gi2->draw_rect(0, 0, rectClient.right, rectClient.bottom, maskR, maskG, maskB);
 	gi2->draw_rect(rectCaptureLeft, rectCaptureTop, get_width(), get_height(), 1, 1, 1);
 	gi2->copy_buffer();
 }
@@ -258,52 +309,36 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_KEYDOWN:
 	{
 		if (wParam == VK_DOWN)
-		{
 			printScreen->down_arrow();
-		}
 		else if (wParam == VK_UP)
-		{
 			printScreen->up_arrow();
-		}
 		else if (wParam == VK_RIGHT)
-		{
 			printScreen->right_arrow();
-		}
 		else if (wParam == VK_LEFT)
-		{
 			printScreen->left_arrow();
-		}
 		else if (wParam == 'B')
-		{
 			printScreen->pressed_b();
-		}
 		else if (wParam == 'G')
-		{
 			printScreen->pressed_g();
-		}
 		else if (wParam == 'J')
-		{
 			printScreen->pressed_j();
-		}
 		else if (wParam == 'P')
-		{
 			printScreen->pressed_p();
-		}
 		else if (wParam == VK_ESCAPE)
-		{
 			PostQuitMessage(0);
-		}
 	}
 	break;
 	case WM_LBUTTONDOWN:
-	{
 		printScreen->left_click(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-	}
 	break;
 	case WM_RBUTTONDOWN:
-	{
 		printScreen->right_click(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-	}
+	break;
+	case WM_MBUTTONDOWN:
+		printScreen->middle_click();
+	break;
+	case WM_MOUSEWHEEL:
+		printScreen->mouse_wheel(GET_WHEEL_DELTA_WPARAM(wParam) / 120);
 	break;
 	case WM_DESTROY:
 		PostQuitMessage(0);

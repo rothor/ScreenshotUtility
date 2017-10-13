@@ -19,12 +19,18 @@ private:
 	int rectCaptureRight;
 	int rectCaptureBottom;
 	bool lrClickFocus;
+	int maskR;
+	int maskG;
+	int maskB;
+	int maskA;
 
 	// Public methods
 public:
 	void size_change();
 	void left_click(int, int);
 	void right_click(int, int);
+	void middle_click();
+	void mouse_wheel(int);
 	void up_arrow();
 	void down_arrow();
 	void left_arrow();
