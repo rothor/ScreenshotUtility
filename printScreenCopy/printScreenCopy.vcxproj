@@ -147,7 +147,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BasicWindowMaker\BasicWindowMaker.h" />
-    <ClInclude Include="GlobalVars.h" />
     <ClInclude Include="GraphicsInterface\GraphicsInterface.h" />
     <ClInclude Include="PrintScreen.h" />
     <ClInclude Include="printScreenCopy.h" />

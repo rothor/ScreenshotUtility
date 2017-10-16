@@ -6,14 +6,15 @@
 class MyPrintScreen
 {
 public:
-	MyPrintScreen();
+	MyPrintScreen(HINSTANCE);
 
 	// Fields
 private:
+	HINSTANCE hInstance;
 	GraphicsInterface* gi1;
 	GraphicsInterface* gi2;
-	BasicWindowMaker bwm1;
-	BasicWindowMaker bwm2;
+	HWND hwnd1;
+	HWND hwnd2;
 	int rectCaptureLeft;
 	int rectCaptureTop;
 	int rectCaptureRight;
@@ -23,6 +24,7 @@ private:
 	int maskG;
 	int maskB;
 	int maskA;
+	static MyPrintScreen* thisPtr;
 
 	// Public methods
 public:
@@ -50,4 +52,5 @@ private:
 	int get_width();
 	int get_height();
 	void screenshot_region_and_save(LPCWSTR, LPCWSTR);
+	static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 };

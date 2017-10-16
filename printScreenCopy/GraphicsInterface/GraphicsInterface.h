@@ -1,8 +1,8 @@
 #pragma once
 #include <objidl.h>
 #include <gdiplus.h>
-#pragma comment(lib, "gdiplus.lib")
-#pragma comment (lib,"Msimg32.lib")
+//#pragma comment(lib, "gdiplus.lib") // Sometimes needed
+//#pragma comment(lib, "Msimg32.lib") // Sometimes needed
 
 
 class GraphicsInterface
@@ -15,7 +15,7 @@ private:
 	HDC hdc;
 	HDC backHdc;
 	HBITMAP backbuffer;
-	Gdiplus::Graphics* graphics;
+	//Gdiplus::Graphics* graphics;
 
 		/* Draw */
 public:

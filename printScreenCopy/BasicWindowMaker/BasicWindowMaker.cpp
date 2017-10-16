@@ -1,8 +1,15 @@
 #include "stdafx.h"
 #include "BasicWindowMaker.h"
 
+int BasicWindowMaker::maxLoadstring = 100;
 
-bool BasicWindowMaker::create_window(wchar_t* p_title, wchar_t* p_windowClass, int p_x, int p_y, int p_width,
+
+BasicWindowMaker::BasicWindowMaker()
+{
+	
+}
+
+HWND BasicWindowMaker::create_window(wchar_t* p_title, wchar_t* p_windowClass, int p_x, int p_y, int p_width,
 	int p_height, WNDPROC p_wndProc, HINSTANCE p_hInst, int p_nCmdShow, int exWindowStyles, int windowStyles, int classStyles,
 	int menuRc, int iconRc, int iconSmallRc, HWND parent)
 {
@@ -10,10 +17,7 @@ bool BasicWindowMaker::create_window(wchar_t* p_title, wchar_t* p_windowClass, i
 	//LoadStringW(p_hInst, IDC_AMAPGAME2, p_windowClass, maxLoadstring);
 	MyRegisterClass(p_hInst, p_wndProc, p_windowClass, classStyles, iconRc, iconSmallRc, menuRc);
 
-	if (!InitInstance(p_title, p_windowClass, p_x, p_y, p_width, p_height, p_hInst, exWindowStyles, windowStyles, p_nCmdShow, parent))
-		return false;
-
-	return true;
+	return InitInstance(p_title, p_windowClass, p_x, p_y, p_width, p_height, p_hInst, exWindowStyles, windowStyles, p_nCmdShow, parent);
 }
 
 ATOM BasicWindowMaker::MyRegisterClass(HINSTANCE hInstance, WNDPROC p_wndProc, wchar_t* p_windowClass,
@@ -22,7 +26,6 @@ ATOM BasicWindowMaker::MyRegisterClass(HINSTANCE hInstance, WNDPROC p_wndProc, w
 	WNDCLASSEXW wcex;
 
 	wcex.cbSize = sizeof(WNDCLASSEX);
-
 	wcex.style = classStyles;
 	wcex.lpfnWndProc = p_wndProc;
 	wcex.cbClsExtra = 0;
@@ -38,17 +41,17 @@ ATOM BasicWindowMaker::MyRegisterClass(HINSTANCE hInstance, WNDPROC p_wndProc, w
 	return RegisterClassExW(&wcex);
 }
 
-BOOL BasicWindowMaker::InitInstance(wchar_t* p_title, wchar_t* p_windowClass, int p_x, int p_y, int p_width,
+HWND BasicWindowMaker::InitInstance(wchar_t* p_title, wchar_t* p_windowClass, int p_x, int p_y, int p_width,
 	int p_height, HINSTANCE p_hInstance, int exWindowStyles, int windowStyles, int p_nCmdShow, HWND parent)
 {
-	mainHwnd = CreateWindowExW(exWindowStyles, p_windowClass, p_title, windowStyles,
+	HWND hwnd = CreateWindowExW(exWindowStyles, p_windowClass, p_title, windowStyles,
 		p_x, p_y, p_width, p_height, parent, nullptr, p_hInstance, nullptr);
 
-	if (!mainHwnd)
-		return false;
+	if (!hwnd)
+		return 0;
 
-	ShowWindow(mainHwnd, p_nCmdShow);
-	UpdateWindow(mainHwnd);
+	ShowWindow(hwnd, p_nCmdShow);
+	UpdateWindow(hwnd);
 
-	return true;
+	return hwnd;
 }

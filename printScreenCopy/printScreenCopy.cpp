@@ -1,15 +1,6 @@
 #include "stdafx.h"
 #include "printScreenCopy.h"
 #include "PrintScreen.h"
-#include "GlobalVars.h"
-#include <Windows.h>
-#include <objidl.h>
-#include <gdiplus.h>
-#pragma comment (lib,"Gdiplus.lib")
-#include <windowsx.h>
-
-extern HINSTANCE hInst;
-extern MyPrintScreen* printScreen;
 
 
 int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow)
@@ -19,9 +10,8 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 	ULONG_PTR gdiplusToken;
 	Gdiplus::GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
 	
-	// Set global vars
-	hInst = hInstance;
-	printScreen = new MyPrintScreen();
+	// Create MyPrintScreen instance
+	MyPrintScreen printScreen(hInstance);
 
 	HACCEL hAccelTable;
 	hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_PRINTSCREENCOPY));

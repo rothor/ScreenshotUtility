@@ -2,52 +2,46 @@
 #include "PrintScreen.h"
 #include "GraphicsInterface\GraphicsInterface.h"
 #include "resource.h"
-#include <windows.h>
-#include <stdio.h>
-#include <objidl.h>
-#include <gdiplus.h>
-#pragma comment (lib,"Gdiplus.lib")
-#include <windowsx.h>
+#include <windowsx.h> // For GET_X_LPARAM and GET_X_LPARAM macros
 #include <string>
-#include <atlstr.h>
-#include <atlimage.h>
-#include <Gdiplusimaging.h>
+#include <atlimage.h> // For Cimage class
 
-LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
-extern HINSTANCE hInst;
-extern MyPrintScreen* printScreen;
+MyPrintScreen* MyPrintScreen::thisPtr = nullptr;
 
 
-MyPrintScreen::MyPrintScreen()
+MyPrintScreen::MyPrintScreen(HINSTANCE hInstanceIn)
 {
-	maskA = 0x90;
+	thisPtr = this;
+	const int C_DEFAULT_WINDOW_2_ALPHA = 0x90;
+	maskA = C_DEFAULT_WINDOW_2_ALPHA;
+	hInstance = hInstanceIn;
 
 	// Create window 1 (background window)
 	int exWindowStyles = WS_EX_LAYERED;
 	int windowStyles = WS_POPUP;
 	int classStyles = 0;
-	bwm1.create_window(L"Screenshot Tool", L"screenshotToolClass",
+	hwnd1 = BasicWindowMaker::create_window(L"Screenshot Tool", L"screenshotToolClass",
 		0, 0, GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN) + 1,
-		WndProc, hInst, SW_SHOW, exWindowStyles, windowStyles, classStyles,
+		WndProc, hInstance, SW_SHOW, exWindowStyles, windowStyles, classStyles,
 		0, IDI_PRINTSCREENCOPY, IDI_SMALL);
-	gi1 = new GraphicsInterface(bwm1.get_hwnd());
-	SetLayeredWindowAttributes(bwm1.get_hwnd(), 0, 1, LWA_ALPHA);
+	gi1 = new GraphicsInterface(hwnd1);
+	SetLayeredWindowAttributes(hwnd1, 0, 1, LWA_ALPHA);
 
 	// Create window 2 (foreground)
 	exWindowStyles = WS_EX_LAYERED | WS_EX_TRANSPARENT;
 	windowStyles = WS_POPUP;
 	classStyles = 0;
-	bwm2.create_window(L"Screenshot Tool extra", L"screenshotToolClass",
+	hwnd2 = BasicWindowMaker::create_window(L"Screenshot Tool extra", L"screenshotToolClass",
 		0, 0, GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN) + 1,
-		WndProc, hInst, SW_SHOW, exWindowStyles, windowStyles, classStyles,
-		0, IDI_PRINTSCREENCOPY, IDI_SMALL, bwm1.get_hwnd()); // the last argument makes window 2 a child of window 1
-	gi2 = new GraphicsInterface(bwm2.get_hwnd());
-	SetLayeredWindowAttributes(bwm2.get_hwnd(), RGB(1, 1, 1), maskA, LWA_ALPHA | LWA_COLORKEY);
+		WndProc, hInstance, SW_SHOW, exWindowStyles, windowStyles, classStyles,
+		0, IDI_PRINTSCREENCOPY, IDI_SMALL, hwnd1); // the last argument makes window 2 a child of window 1
+	gi2 = new GraphicsInterface(hwnd2);
+	SetLayeredWindowAttributes(hwnd2, RGB(1, 1, 1), maskA, LWA_ALPHA | LWA_COLORKEY);
 	
 	// Initialize fields
 	lrClickFocus = false;
 	RECT rectClient;
-	GetClientRect(bwm1.get_hwnd(), &rectClient);
+	GetClientRect(hwnd1, &rectClient);
 	rectCaptureLeft = rectClient.right / 2 - 150;
 	rectCaptureRight = rectClient.right / 2 + 150;
 	rectCaptureTop = rectClient.bottom / 2 - 150;
@@ -133,13 +127,15 @@ void MyPrintScreen::middle_click()
 
 void MyPrintScreen::mouse_wheel(int amount)
 {
+	// Calculate the window 2's new alpha
 	maskA += amount * 0x10;
 	if (maskA > 0xFF)
 		maskA = 0xFF;
 	else if (maskA < 0)
 		maskA = 0;
 
-	SetLayeredWindowAttributes(bwm2.get_hwnd(), RGB(1, 1, 1), maskA, LWA_ALPHA | LWA_COLORKEY);
+	// Set the window's alpha
+	SetLayeredWindowAttributes(hwnd2, RGB(1, 1, 1), maskA, LWA_ALPHA | LWA_COLORKEY);
 }
 
 void MyPrintScreen::up_arrow()
@@ -186,12 +182,12 @@ void MyPrintScreen::draw_window()
 {
 	// Draw window 1
 	RECT rectClient;
-	GetClientRect(bwm1.get_hwnd(), &rectClient);
+	GetClientRect(hwnd1, &rectClient);
 	gi1->draw_rect(0, 0, rectClient.right, rectClient.bottom, 0xFF, 0xFF, 0xFF);
 	gi1->copy_buffer();
 
 	// Draw window 2
-	GetClientRect(bwm2.get_hwnd(), &rectClient);
+	GetClientRect(hwnd2, &rectClient);
 	gi2->draw_rect(0, 0, rectClient.right, rectClient.bottom, maskR, maskG, maskB);
 	gi2->draw_rect(rectCaptureLeft, rectCaptureTop, get_width(), get_height(), 1, 1, 1);
 	gi2->copy_buffer();
@@ -283,63 +279,63 @@ void MyPrintScreen::screenshot_region_and_save(LPCWSTR fileExtension, LPCWSTR mb
 	fileName += std::to_wstring(mySysTime.wYear);
 	fileName += fileExtension;
 
-	ShowWindow(bwm1.get_hwnd(), SW_HIDE);
-	ShowWindow(bwm2.get_hwnd(), SW_HIDE);
+	ShowWindow(hwnd1, SW_HIDE);
+	ShowWindow(hwnd2, SW_HIDE);
 	save_rect_on_screen_as_image(rectCaptureLeft, rectCaptureTop, get_width(), get_height(), fileName);
-	ShowWindow(bwm1.get_hwnd(), SW_SHOW);
-	ShowWindow(bwm2.get_hwnd(), SW_SHOW);
+	ShowWindow(hwnd1, SW_SHOW);
+	ShowWindow(hwnd2, SW_SHOW);
 	draw_window();
-	MessageBox(bwm1.get_hwnd(), mbMessage, L"Screen Captured", MB_OK);
+	MessageBox(0, mbMessage, L"Screen Captured", MB_OK);
 }
 
 
-LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK MyPrintScreen::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	switch (message)
 	{
 	case WM_PAINT:
-	{
-		PAINTSTRUCT ps;
-		BeginPaint(hWnd, &ps);
-		EndPaint(hWnd, &ps);
-	}
-	break;
+		{
+			PAINTSTRUCT ps;
+			BeginPaint(hWnd, &ps);
+			EndPaint(hWnd, &ps);
+		}
+		break;
 	case WM_ERASEBKGND:
-	break;
+		break;
 	case WM_KEYDOWN:
-	{
-		if (wParam == VK_DOWN)
-			printScreen->down_arrow();
-		else if (wParam == VK_UP)
-			printScreen->up_arrow();
-		else if (wParam == VK_RIGHT)
-			printScreen->right_arrow();
-		else if (wParam == VK_LEFT)
-			printScreen->left_arrow();
-		else if (wParam == 'B')
-			printScreen->pressed_b();
-		else if (wParam == 'G')
-			printScreen->pressed_g();
-		else if (wParam == 'J')
-			printScreen->pressed_j();
-		else if (wParam == 'P')
-			printScreen->pressed_p();
-		else if (wParam == VK_ESCAPE)
-			PostQuitMessage(0);
-	}
-	break;
+		{
+			if (wParam == VK_DOWN)
+				thisPtr->down_arrow();
+			else if (wParam == VK_UP)
+				thisPtr->up_arrow();
+			else if (wParam == VK_RIGHT)
+				thisPtr->right_arrow();
+			else if (wParam == VK_LEFT)
+				thisPtr->left_arrow();
+			else if (wParam == 'B')
+				thisPtr->pressed_b();
+			else if (wParam == 'G')
+				thisPtr->pressed_g();
+			else if (wParam == 'J')
+				thisPtr->pressed_j();
+			else if (wParam == 'P')
+				thisPtr->pressed_p();
+			else if (wParam == VK_ESCAPE)
+				PostQuitMessage(0);
+		}
+		break;
 	case WM_LBUTTONDOWN:
-		printScreen->left_click(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-	break;
+		thisPtr->left_click(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+		break;
 	case WM_RBUTTONDOWN:
-		printScreen->right_click(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-	break;
+		thisPtr->right_click(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+		break;
 	case WM_MBUTTONDOWN:
-		printScreen->middle_click();
-	break;
+		thisPtr->middle_click();
+		break;
 	case WM_MOUSEWHEEL:
-		printScreen->mouse_wheel(GET_WHEEL_DELTA_WPARAM(wParam) / 120);
-	break;
+		thisPtr->mouse_wheel(GET_WHEEL_DELTA_WPARAM(wParam) / 120);
+		break;
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		break;
