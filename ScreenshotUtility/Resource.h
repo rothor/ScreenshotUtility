@@ -1,18 +1,18 @@
 //{{NO_DEPENDENCIES}}
 // Microsoft Visual C++ generated include file.
-// Used by printScreenCopy.rc
+// Used by ScreenshotUtility.rc
 //
 
 #define IDS_APP_TITLE			103
 
 #define IDR_MAINFRAME			128
-#define IDD_PRINTSCREENCOPY_DIALOG	102
+#define IDD_SCREENSHOTUTILITY_DIALOG	102
 #define IDD_ABOUTBOX			103
 #define IDM_ABOUT				104
 #define IDM_EXIT				105
-#define IDI_PRINTSCREENCOPY			107
+#define IDI_SCREENSHOTUTILITY			107
 #define IDI_SMALL				108
-#define IDC_PRINTSCREENCOPY			109
+#define IDC_SCREENSHOTUTILITY			109
 #define IDC_MYICON				2
 #ifndef IDC_STATIC
 #define IDC_STATIC				-1

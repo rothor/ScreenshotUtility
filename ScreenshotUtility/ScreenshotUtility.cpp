@@ -1,6 +1,7 @@
-#include "stdafx.h"
-#include "printScreenCopy.h"
+#include "ScreenshotUtility.h"
 #include "PrintScreen.h"
+#include "Resource.h"
+#include <tchar.h>
 
 
 int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow)
@@ -10,11 +11,11 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 	ULONG_PTR gdiplusToken;
 	Gdiplus::GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
 	
-	// Create MyPrintScreen instance
-	MyPrintScreen printScreen(hInstance);
+	// Create PrintScreen instance
+	PrintScreen printScreen(hInstance);
 
 	HACCEL hAccelTable;
-	hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_PRINTSCREENCOPY));
+	hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_SCREENSHOTUTILITY));
 	MSG msg;
 	while (GetMessage(&msg, NULL, 0, 0))
 	{

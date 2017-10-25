@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "GraphicsInterface.h"
 
 
@@ -35,10 +34,7 @@ void GraphicsInterface::draw_rect(int x, int y, int width, int height, int red, 
 	rectDraw.right = x + width;
 	rectDraw.top = y;
 	rectDraw.bottom = y + height;
-
-	//HBRUSH hBrush = CreateSolidBrush(RGB(red, green, blue));
-	//FillRect(backHdc, &rectDraw, hBrush);
-	//DeleteObject(hBrush);
+	
 	Gdiplus::SolidBrush hBrush(Gdiplus::Color(alpha, red, green, blue));
 	Gdiplus::Graphics graphics(backHdc);
 	graphics.FillRectangle(&hBrush, x, y, width, height);

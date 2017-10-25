@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "BasicWindowMaker.h"
 
 int BasicWindowMaker::maxLoadstring = 100;

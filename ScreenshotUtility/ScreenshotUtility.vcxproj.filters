@@ -15,50 +15,41 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="ReadMe.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="stdafx.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="targetver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="printScreenCopy.h">
+    <ClInclude Include="ScreenshotUtility.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="PrintScreen.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="BasicWindowMaker\BasicWindowMaker.h">
+    <ClInclude Include="GraphicsInterface\GraphicsInterface.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GraphicsInterface\GraphicsInterface.h">
+    <ClInclude Include="BasicWindowMaker\BasicWindowMaker.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="stdafx.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="printScreenCopy.cpp">
+    <ClCompile Include="ScreenshotUtility.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="PrintScreen.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="BasicWindowMaker\BasicWindowMaker.cpp">
+    <ClCompile Include="GraphicsInterface\GraphicsInterface.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GraphicsInterface\GraphicsInterface.cpp">
+    <ClCompile Include="BasicWindowMaker\BasicWindowMaker.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="printScreenCopy.rc">
+    <ResourceCompile Include="ScreenshotUtility.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
   </ItemGroup>
@@ -66,7 +57,7 @@
     <Image Include="small.ico">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="printScreenCopy.ico">
+    <Image Include="ScreenshotUtility.ico">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>
