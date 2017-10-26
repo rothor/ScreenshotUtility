@@ -1,7 +1,7 @@
 #include "ScreenshotUtility.h"
 #include "PrintScreen.h"
 #include "Resource.h"
-#include <tchar.h>
+#include <tchar.h> // Needed by WinMain
 
 
 int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow)
@@ -14,6 +14,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 	// Create PrintScreen instance
 	PrintScreen printScreen(hInstance);
 
+	// Enter the message loop
 	HACCEL hAccelTable;
 	hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_SCREENSHOTUTILITY));
 	MSG msg;

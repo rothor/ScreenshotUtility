@@ -1,11 +1,11 @@
 # Screenshot Utility
 
 Version: 1.0  
-Last updated: Oct 25, 2017
+Last updated: Oct 26, 2017
 
 ## About this project
 
-This project is a desktop application that allows you to easily take screenshots and save them as a file. An overlay on the screen can be altered with the mouse to control the cropping area, and pressing P, J, G, or B on the keyboard will save the image as a PNG, JPG, GIF, or BMP to your computer. This project was made for and tested on Windows 10.
+This project is a Windows desktop application, written in C++, that allows you to easily take screenshots and save them as a file. An overlay on the screen can be altered with the mouse to control the cropping area, and pressing P, J, G, or B on the keyboard will save the image as a PNG, JPG, GIF, or BMP to your computer. This project was made for and tested on Windows 10.
 
 ## Building this project with MS Visual Studio 2017
 

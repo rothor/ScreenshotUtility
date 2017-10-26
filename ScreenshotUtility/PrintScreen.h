@@ -24,10 +24,8 @@ private:
 	int maskColorMode;
 	static PrintScreen* thisPtr; // Used exclusively by the WndProc method.
 
-	// Public methods
-	// The public methods mostly serve to notify the class of user input.
+	// Public methods (these mostly serve to notify the class of user input)
 public:
-	void size_change();
 	void left_click(int xIn, int yIn);
 	void right_click(int xIn, int yIn);
 	void middle_click();
@@ -36,10 +34,13 @@ public:
 
 	// Private methods
 private:
-	void displace_rectCapture_left_smart(int amount);
-	void displace_rectCapture_right_smart(int amount);
-	void displace_rectCapture_top_smart(int amount);
-	void displace_rectCapture_bottom_smart(int amount);
+	void set_rectCapture_topLeft_safe(int xIn, int yIn);
+	void set_rectCapture_bottomRight_safe(int xIn, int yIn);
+	void displace_rectCapture_left_safe(int amount);
+	void displace_rectCapture_right_safe(int amount);
+	void displace_rectCapture_top_safe(int amount);
+	void displace_rectCapture_bottom_safe(int amount);
+	void cycle_mask_color_mode();
 	void draw_window();
 	void screenshot_region_and_save(LPCWSTR fileExtension, LPCWSTR mbMessage);
 	static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);

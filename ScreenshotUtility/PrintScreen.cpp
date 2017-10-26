@@ -1,19 +1,33 @@
 #include "PrintScreen.h"
 #include "GraphicsInterface\GraphicsInterface.h"
 #include "Resource.h"
-#include <windowsx.h> // For GET_X_LPARAM and GET_X_LPARAM macros
+#include <windowsx.h> // For GET_X_LPARAM and GET_Y_LPARAM macros
 #include <string>
 #include <atlimage.h> // For Cimage class
 
 PrintScreen* PrintScreen::thisPtr = nullptr;
 
 
+/* Class: PrintScreen
+ * Purpose:
+ *     This class handles most of the functionality of this program.
+ *
+ * Usage:
+ *     This class should be instantiated only once, before the program enters the message loop. The instance should be
+ *     declared in WinMain so that it will not be destroyed until the program terminates.
+ * * * * */
 PrintScreen::PrintScreen(HINSTANCE hInstanceIn)
 {
+	// Initialize fields
 	thisPtr = this;
 	const int C_DEFAULT_WINDOW_2_ALPHA = 0x90;
 	maskA = C_DEFAULT_WINDOW_2_ALPHA;
 	hInstance = hInstanceIn;
+	mouseRightButtonLastClicked = false;
+	maskR = 0;
+	maskG = 0;
+	maskB = 0;
+	maskColorMode = 0;
 
 	// Create window 1 (background window)
 	int exWindowStyles = WS_EX_LAYERED;
@@ -24,7 +38,8 @@ PrintScreen::PrintScreen(HINSTANCE hInstanceIn)
 		WndProc, hInstance, SW_SHOW, exWindowStyles, windowStyles, classStyles,
 		0, IDI_SCREENSHOTUTILITY, IDI_SMALL);
 	gi1 = new GraphicsInterface(hwnd1);
-	SetLayeredWindowAttributes(hwnd1, 0, 1, LWA_ALPHA);
+	// Window 1 will have an alpha of 0x01, so it will be almost invisible, but it will still capture mouse clicks.
+	SetLayeredWindowAttributes(hwnd1, 0, 0x01, LWA_ALPHA);
 
 	// Create window 2 (foreground)
 	exWindowStyles = WS_EX_LAYERED | WS_EX_TRANSPARENT;
@@ -37,18 +52,13 @@ PrintScreen::PrintScreen(HINSTANCE hInstanceIn)
 	gi2 = new GraphicsInterface(hwnd2);
 	SetLayeredWindowAttributes(hwnd2, RGB(1, 1, 1), maskA, LWA_ALPHA | LWA_COLORKEY);
 	
-	// Initialize fields
-	mouseRightButtonLastClicked = false;
+	// Initialize rectCapture (this must be initialized after windows are created)
 	RECT rectClient;
 	GetClientRect(hwnd1, &rectClient);
 	rectCapture.left = rectClient.right / 2 - 150;
 	rectCapture.right = rectClient.right / 2 + 150;
 	rectCapture.top = rectClient.bottom / 2 - 150;
 	rectCapture.bottom = rectClient.bottom / 2 + 150;
-	maskR = 0;
-	maskG = 0;
-	maskB = 0;
-	maskColorMode = 0;
 	
 	draw_window();
 }
@@ -56,41 +66,171 @@ PrintScreen::PrintScreen(HINSTANCE hInstanceIn)
 
 			// Public methods
 
-void PrintScreen::size_change()
-{
-	gi1->size_change();
-	gi2->size_change();
-}
-
+// This method controls what happens when the user left clicks.
 void PrintScreen::left_click(int xIn, int yIn)
 {
-	mouseRightButtonLastClicked = false;
-	rectCapture.left = xIn;
-	if (xIn >= rectCapture.right)
-		rectCapture.right = xIn + 50;
-
-	rectCapture.top = yIn;
-	if (yIn >= rectCapture.bottom)
-		rectCapture.bottom = yIn + 50;
+	set_rectCapture_topLeft_safe(xIn, yIn);
 
 	draw_window();
 }
 
+// This method controls what happens when the user right clicks.
 void PrintScreen::right_click(int xIn, int yIn)
 {
-	mouseRightButtonLastClicked = true;
-	rectCapture.right = xIn;
-	if (xIn <= rectCapture.left)
-		rectCapture.left = xIn - 50;
-
-	rectCapture.bottom = yIn;
-	if (yIn <= rectCapture.top)
-		rectCapture.top = yIn - 50;
+	set_rectCapture_bottomRight_safe(xIn, yIn);
 
 	draw_window();
 }
 
+// This method controls what happens when the user middle clicks.
 void PrintScreen::middle_click()
+{
+	cycle_mask_color_mode();
+
+	draw_window();
+}
+
+// This method controls what happens when the user mouse wheels.
+void PrintScreen::mouse_wheel(int amount)
+{
+	// Calculate the window 2's new alpha
+	maskA += amount * 0x10;
+	// Make sure alpha is not greater than 0xFF
+	if (maskA > 0xFF)
+		maskA = 0xFF;
+	// Also make sure alpha is not less than 0
+	else if (maskA < 0)
+		maskA = 0;
+
+	// Set the window's alpha
+	SetLayeredWindowAttributes(hwnd2, RGB(1, 1, 1), maskA, LWA_ALPHA | LWA_COLORKEY);
+}
+
+// This method controls what happens when the user presses a keyboard key.
+void PrintScreen::key_pressed(int keyCode)
+{
+	if (keyCode == VK_DOWN)
+	{
+		if (!mouseRightButtonLastClicked)
+			displace_rectCapture_top_safe(1);
+		else
+			displace_rectCapture_bottom_safe(1);
+
+		draw_window();
+	}
+	else if (keyCode == VK_UP)
+	{
+		if (!mouseRightButtonLastClicked)
+			displace_rectCapture_top_safe(-1);
+		else
+			displace_rectCapture_bottom_safe(-1);
+
+		draw_window();
+	}
+	else if (keyCode == VK_RIGHT)
+	{
+		if (!mouseRightButtonLastClicked)
+			displace_rectCapture_left_safe(1);
+		else
+			displace_rectCapture_right_safe(1);
+
+		draw_window();
+	}
+	else if (keyCode == VK_LEFT)
+	{
+		if (!mouseRightButtonLastClicked)
+			displace_rectCapture_left_safe(-1);
+		else
+			displace_rectCapture_right_safe(-1);
+
+		draw_window();
+	}
+	else if (keyCode == 'B')
+		screenshot_region_and_save(L".bmp", L"Saved picture as '.bmp' in 'pics' folder.");
+	else if (keyCode == 'G')
+		screenshot_region_and_save(L".gif", L"Saved picture as '.gif' in 'pics' folder.");
+	else if (keyCode == 'J')
+		screenshot_region_and_save(L".jpg", L"Saved picture as '.jpg' in 'pics' folder.");
+	else if (keyCode == 'P')
+		screenshot_region_and_save(L".png", L"Saved picture as '.png' in 'pics' folder.");
+	else if (keyCode == VK_ESCAPE)
+		PostQuitMessage(0);
+}
+
+
+			// Private methods
+
+void PrintScreen::set_rectCapture_topLeft_safe(int xIn, int yIn)
+{
+	mouseRightButtonLastClicked = false;
+
+	// Set rectCapture.left
+	rectCapture.left = xIn;
+	// Ensure that rectCapture.left is less than rectCapture.right
+	if (rectCapture.left >= rectCapture.right)
+		rectCapture.right = rectCapture.left + 50;
+
+	// Set rectCapture.top
+	rectCapture.top = yIn;
+	// Ensure that rectCapture.top is less than rectCapture.bottom
+	if (rectCapture.top >= rectCapture.bottom)
+		rectCapture.bottom = rectCapture.top + 50;
+}
+
+void PrintScreen::set_rectCapture_bottomRight_safe(int xIn, int yIn)
+{
+	mouseRightButtonLastClicked = true;
+
+	// Set rectCapture.right
+	rectCapture.right = xIn;
+	// Ensure that rectCapture.right is greater than rectCapture.left
+	if (rectCapture.right <= rectCapture.left)
+		rectCapture.left = rectCapture.right - 50;
+
+	// Set rectCapture.bottom
+	rectCapture.bottom = yIn;
+	// Ensure that rectCapture.bottom is greater than rectCapture.top
+	if (rectCapture.bottom <= rectCapture.top)
+		rectCapture.top = rectCapture.bottom - 50;
+}
+
+void PrintScreen::displace_rectCapture_left_safe(int amount)
+{
+	// Displace rectCapture.left
+	rectCapture.left += amount;
+	// Ensure that rectCapture.left is less than rectCapture.right
+	if (rectCapture.left >= rectCapture.right)
+		rectCapture.left = rectCapture.right - 1;
+}
+
+void PrintScreen::displace_rectCapture_right_safe(int amount)
+{
+	// Displace rectCapture.right
+	rectCapture.right += amount;
+	// Ensure that rectCapture.right is greater than rectCapture.left
+	if (rectCapture.right <= rectCapture.left)
+		rectCapture.right = rectCapture.left + 1;
+}
+
+void PrintScreen::displace_rectCapture_top_safe(int amount)
+{
+	// Set rectCapture.top
+	rectCapture.top += amount;
+	// Ensure that rectCapture.top is less than rectCapture.bottom
+	if (rectCapture.top >= rectCapture.bottom)
+		rectCapture.top = rectCapture.bottom - 1;
+}
+
+void PrintScreen::displace_rectCapture_bottom_safe(int amount)
+{
+	// Set rectCapture.bottom
+	rectCapture.bottom += amount;
+	// Ensure that rectCapture.bottom is greater than rectCapture.top
+	if (rectCapture.bottom <= rectCapture.top)
+		rectCapture.bottom = rectCapture.top + 1;
+}
+
+void PrintScreen::cycle_mask_color_mode()
 {
 	maskColorMode++;
 	if (maskColorMode > 3)
@@ -120,73 +260,9 @@ void PrintScreen::middle_click()
 		maskG = 0x00;
 		maskB = 0x00;
 	}
-
-	draw_window();
 }
 
-void PrintScreen::mouse_wheel(int amount)
-{
-	// Calculate the window 2's new alpha
-	maskA += amount * 0x10;
-	if (maskA > 0xFF)
-		maskA = 0xFF;
-	else if (maskA < 0)
-		maskA = 0;
-
-	// Set the window's alpha
-	SetLayeredWindowAttributes(hwnd2, RGB(1, 1, 1), maskA, LWA_ALPHA | LWA_COLORKEY);
-}
-
-void PrintScreen::key_pressed(int keyCode)
-{
-	if (keyCode == VK_DOWN)
-	{
-		if (!mouseRightButtonLastClicked)
-			displace_rectCapture_top_smart(1);
-		else
-			displace_rectCapture_bottom_smart(1);
-
-		draw_window();
-	}
-	else if (keyCode == VK_UP)
-	{
-		if (!mouseRightButtonLastClicked)
-			displace_rectCapture_top_smart(-1);
-		else
-			displace_rectCapture_bottom_smart(-1);
-
-		draw_window();
-	}
-	else if (keyCode == VK_RIGHT)
-	{
-		if (!mouseRightButtonLastClicked)
-			displace_rectCapture_left_smart(1);
-		else
-			displace_rectCapture_right_smart(1);
-
-		draw_window();
-	}
-	else if (keyCode == VK_LEFT)
-	{
-		if (!mouseRightButtonLastClicked)
-			displace_rectCapture_left_smart(-1);
-		else
-			displace_rectCapture_right_smart(-1);
-
-		draw_window();
-	}
-	else if (keyCode == 'B')
-		screenshot_region_and_save(L".bmp", L"Saved picture as '.bmp' in 'pics' folder.");
-	else if (keyCode == 'G')
-		screenshot_region_and_save(L".gif", L"Saved picture as '.gif' in 'pics' folder.");
-	else if (keyCode == 'J')
-		screenshot_region_and_save(L".jpg", L"Saved picture as '.jpg' in 'pics' folder.");
-	else if (keyCode == 'P')
-		screenshot_region_and_save(L".png", L"Saved picture as '.png' in 'pics' folder.");
-	else if (keyCode == VK_ESCAPE)
-		PostQuitMessage(0);
-}
-
+// This method repaints the windows.
 void PrintScreen::draw_window()
 {
 	// Draw window 1
@@ -203,33 +279,6 @@ void PrintScreen::draw_window()
 	gi2->copy_buffer();
 }
 
-
-			// Private methods
-
-void PrintScreen::displace_rectCapture_left_smart(int amount)
-{
-	if (rectCapture.left + amount < rectCapture.right)
-		rectCapture.left += amount;
-}
-
-void PrintScreen::displace_rectCapture_right_smart(int amount)
-{
-	if (rectCapture.right + amount > rectCapture.left)
-		rectCapture.right += amount;
-}
-
-void PrintScreen::displace_rectCapture_top_smart(int amount)
-{
-	if (rectCapture.top + amount < rectCapture.bottom)
-		rectCapture.top += amount;
-}
-
-void PrintScreen::displace_rectCapture_bottom_smart(int amount)
-{
-	if (rectCapture.bottom + amount > rectCapture.top)
-		rectCapture.bottom += amount;
-}
-
 void save_rect_on_screen_as_image(int x, int y, int w, int h, std::wstring fileName)
 {
 	HDC hdcScreen = GetDC(NULL);
@@ -244,6 +293,7 @@ void save_rect_on_screen_as_image(int x, int y, int w, int h, std::wstring fileN
 	myCimg.Save(fileName.c_str());
 }
 
+// This method creates a screenshot from the rectangle defined by rectCapture and saves it as an image.
 void PrintScreen::screenshot_region_and_save(LPCWSTR fileExtension, LPCWSTR mbMessage)
 {
 	CreateDirectory(L"pics", NULL);
@@ -269,17 +319,16 @@ void PrintScreen::screenshot_region_and_save(LPCWSTR fileExtension, LPCWSTR mbMe
 	MessageBox(0, mbMessage, L"Screen Captured", MB_OK);
 }
 
-
 LRESULT CALLBACK PrintScreen::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	switch (message)
 	{
-	case WM_PAINT:
+	case WM_PAINT: // This message must be handled like this so that message boxes are properly painted.
 		PAINTSTRUCT ps;
 		BeginPaint(hWnd, &ps);
 		EndPaint(hWnd, &ps);
 		break;
-	case WM_ERASEBKGND:
+	case WM_ERASEBKGND: // This message must be handled to prevent a minor graphical glitch.
 		break;
 	case WM_KEYDOWN:
 		thisPtr->key_pressed(wParam);
@@ -294,7 +343,7 @@ LRESULT CALLBACK PrintScreen::WndProc(HWND hWnd, UINT message, WPARAM wParam, LP
 		thisPtr->middle_click();
 		break;
 	case WM_MOUSEWHEEL:
-		thisPtr->mouse_wheel(GET_WHEEL_DELTA_WPARAM(wParam) / 120); // Mouse wheel spins are expressed in multiples of 120
+		thisPtr->mouse_wheel(GET_WHEEL_DELTA_WPARAM(wParam) / 120); // Mouse wheel spins are expressed in multiples of 120.
 		break;
 	case WM_DESTROY:
 		PostQuitMessage(0);
