@@ -1,18 +1,13 @@
-#include "ScreenshotUtility.h"
-#include "PrintScreen.h"
+#include "targetver.h"
 #include "Resource.h"
+#include "ScreenshotUtilityApp\ScreenshotUtilityApp.h"
 #include <tchar.h> // Needed by WinMain
 
 
 int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow)
-{
-	// Startup GDI+
-	Gdiplus::GdiplusStartupInput gdiplusStartupInput;
-	ULONG_PTR gdiplusToken;
-	Gdiplus::GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
-	
-	// Create PrintScreen instance
-	PrintScreen printScreen(hInstance);
+{	
+	// Create ScreenshotUtilityApp instance
+	ScreenshotUtilityApp sua(hInstance);
 
 	// Enter the message loop
 	HACCEL hAccelTable;
@@ -26,9 +21,6 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 			DispatchMessage(&msg);
 		}
 	}
-
-	// Shutdown GDI+
-	Gdiplus::GdiplusShutdown(gdiplusToken);
-
+	
 	return msg.wParam;
 }

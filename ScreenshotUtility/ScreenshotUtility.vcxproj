@@ -95,7 +95,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -107,7 +107,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -122,7 +122,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -135,18 +135,24 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="BasicWindowMaker\BasicWindowMaker.h" />
-    <ClInclude Include="GraphicsInterface\GraphicsInterface.h" />
-    <ClInclude Include="PrintScreen.h" />
+    <ClInclude Include="ScreenshotUtilityApp\BasicWindowMaker\BasicWindowMaker.h" />
+    <ClInclude Include="ScreenshotUtilityApp\GraphicsInterface\GraphicsInterface.h" />
+    <ClInclude Include="ScreenshotUtilityApp\OptionsWindow\custom message defines.h" />
+    <ClInclude Include="ScreenshotUtilityApp\OptionsWindow\OptionsWindow.h" />
+    <ClInclude Include="ScreenshotUtilityApp\SafeRect\SafeRect.h" />
+    <ClInclude Include="ScreenshotUtilityApp\ScreenshotUtilityApp.h" />
     <ClInclude Include="Resource.h" />
-    <ClInclude Include="ScreenshotUtility.h" />
+    <ClInclude Include="ScreenshotUtilityApp\Screenshotter\Screenshotter.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="BasicWindowMaker\BasicWindowMaker.cpp" />
-    <ClCompile Include="GraphicsInterface\GraphicsInterface.cpp" />
-    <ClCompile Include="PrintScreen.cpp" />
-    <ClCompile Include="ScreenshotUtility.cpp" />
+    <ClCompile Include="ScreenshotUtilityApp\BasicWindowMaker\BasicWindowMaker.cpp" />
+    <ClCompile Include="ScreenshotUtilityApp\GraphicsInterface\GraphicsInterface.cpp" />
+    <ClCompile Include="ScreenshotUtilityApp\OptionsWindow\OptionsWindow.cpp" />
+    <ClCompile Include="ScreenshotUtilityApp\SafeRect\SafeRect.cpp" />
+    <ClCompile Include="ScreenshotUtilityApp\ScreenshotUtilityApp.cpp" />
+    <ClCompile Include="ScreenshotUtilityApp\Screenshotter\Screenshotter.cpp" />
+    <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="ScreenshotUtility.rc" />

@@ -21,30 +21,48 @@
     <ClInclude Include="Resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ScreenshotUtility.h">
+    <ClInclude Include="ScreenshotUtilityApp\Screenshotter\Screenshotter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="PrintScreen.h">
+    <ClInclude Include="ScreenshotUtilityApp\GraphicsInterface\GraphicsInterface.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GraphicsInterface\GraphicsInterface.h">
+    <ClInclude Include="ScreenshotUtilityApp\BasicWindowMaker\BasicWindowMaker.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="BasicWindowMaker\BasicWindowMaker.h">
+    <ClInclude Include="ScreenshotUtilityApp\ScreenshotUtilityApp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ScreenshotUtilityApp\SafeRect\SafeRect.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ScreenshotUtilityApp\OptionsWindow\OptionsWindow.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ScreenshotUtilityApp\OptionsWindow\custom message defines.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ScreenshotUtility.cpp">
+    <ClCompile Include="ScreenshotUtilityApp\Screenshotter\Screenshotter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="PrintScreen.cpp">
+    <ClCompile Include="ScreenshotUtilityApp\GraphicsInterface\GraphicsInterface.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GraphicsInterface\GraphicsInterface.cpp">
+    <ClCompile Include="ScreenshotUtilityApp\BasicWindowMaker\BasicWindowMaker.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="BasicWindowMaker\BasicWindowMaker.cpp">
+    <ClCompile Include="ScreenshotUtilityApp\ScreenshotUtilityApp.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ScreenshotUtilityApp\SafeRect\SafeRect.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ScreenshotUtilityApp\OptionsWindow\OptionsWindow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
